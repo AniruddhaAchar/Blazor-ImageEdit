@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/src/.vs/blazorImageProcessing
+/src/obj
+/src/Properties/PublishProfiles
+/src/wwwroot/sample-data

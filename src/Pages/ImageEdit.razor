@@ -1,0 +1,90 @@
+﻿@page "/"
+@using BlazorInputFile
+@using SixLabors.ImageSharp;
+@using SixLabors.ImageSharp.Processing;
+@using System.IO;
+@using SixLabors.ImageSharp.Formats;
+@using SixLabors.ImageSharp.Processing.Processors.Filters;
+@using blazorImageProcessing.viewmodel
+@implements IDisposable
+@using blazorImageProcessing;
+
+<div class="col-md">
+    <div class="row">
+        <h3>Upload an image</h3>
+    </div>
+    <div class="row">
+        <InputFile OnChange="HandleFileSelected" />
+    </div>
+    <div class="row">
+        @if (displayImage)
+        {
+            <img src="@_ip.getBase64String()" />
+        }
+    </div>
+</div>
+<div class="row">
+    @if (imageControls != null)
+    {
+        <div class="col-md-2">
+            <h4>Image edit options</h4>
+            @foreach (var imageControl in imageControls)
+            {
+                <div class="row">
+                    <div class="slidecontainer">
+                        <label class="form-check-label">@imageControl.Name</label>
+                        <input type="range" min="@imageControl.minRange" step="@imageControl.Steps" max="@imageControl.maxRange" value="@imageControl.value" class="slider" id="myRange" @onchange="imageControl.ProcessImage">
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="col-md-2">
+            <button @onclick="_ip.ResetImage">Reset Image</button>
+        </div>
+    }
+    @if(String.IsNullOrEmpty(Error))
+    {
+        <h3>@Error</h3>
+    }
+</div>
+
+
+
+@code {
+    List<IImageControl> imageControls;
+    string Error;
+    bool displayImage = false;
+    KnownControls knownControls;
+    ImageProcessing _ip;
+
+    async Task HandleFileSelected(IFileListEntry[] files)
+    {
+        var imageFile = files.FirstOrDefault();
+
+        if (imageFile != null)
+        {
+            var ms = new MemoryStream();
+            await imageFile.Data.CopyToAsync(ms);
+
+            try
+            {
+                IImageFormat imageFormat;
+                Image imgSharp = Image.Load(ms.ToArray(), out imageFormat);
+                _ip = new ImageProcessing(imgSharp, imageFormat);
+                knownControls = new KnownControls(_ip);
+                imageControls = knownControls.GetImageControls();
+                displayImage = true;
+            }
+            catch (Exception e)
+            {
+                Error = $"Error occured while loading image {e.Message}";
+            }
+
+        }
+    }
+
+    public void Dispose()
+    {
+    }
+
+}
