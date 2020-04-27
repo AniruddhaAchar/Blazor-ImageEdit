@@ -6,3 +6,5 @@
 /src/obj
 /src/Properties/PublishProfiles
 /src/wwwroot/sample-data
+/src/bin/Release/netstandard2.1/publish
+/src/bin/Release/netstandard2.1
